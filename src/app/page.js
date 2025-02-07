@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState } from "react";
 import {
   FaChevronLeft,
@@ -8,7 +6,17 @@ import {
   FaStar,
 } from "react-icons/fa";
 
-// Array of testimonial objects containing customer feedback
+/**
+ * Array of testimonial objects containing customer feedback
+ * @type {Array<{
+ *   firstName: string,
+ *   lastName: string,
+ *   description: string,
+ *   rating: number,
+ *   avatarUrl: string,
+ *   subtitle: string
+ * }>}
+ */
 const testimonials = [
   {
     firstName: "Sarah",
@@ -16,7 +24,7 @@ const testimonials = [
     description:
       "The product exceeded my expectations! The attention to detail and quality of service was outstanding. I would highly recommend this to anyone looking for a reliable solution.",
     rating: 5,
-    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+    avatarUrl: "",
     subtitle: "Marketing Director, Tech Corp",
   },
   {
@@ -39,7 +47,12 @@ const testimonials = [
   },
 ];
 
-// Renders a star rating display
+/**
+ * Renders a star rating display
+ * @param {Object} props - Component props
+ * @param {number} props.rating - Rating value (1-5)
+ * @returns {JSX.Element} Star rating display
+ */
 const StarRating = ({ rating }) => {
   return (
     <div className="flex gap-1">
@@ -55,22 +68,50 @@ const StarRating = ({ rating }) => {
   );
 };
 
-// Renders an individual testimonial card with expandable text
+/**
+ * Renders an individual testimonial card with expandable text
+ * @param {Object} props - Component props
+ * @param {Object} props.testimonial - Testimonial data object
+ * @returns {JSX.Element} Testimonial card
+ */
 const TestimonialCard = ({ testimonial }) => {
-  const { firstName, lastName, description, rating, subtitle } = testimonial;
+  const { firstName, lastName, description, rating, subtitle, avatarUrl } =
+    testimonial;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const maxLength = 150; //Maximum characters to show before truncating
-  const shouldShowReadMore = description.length > maxLength; //Determines if the read more button should be shown
-  // Determines the text to display based on the current state
+  const maxLength = 150;
+  const shouldShowReadMore = description.length > maxLength;
   const displayText =
     shouldShowReadMore && !isExpanded
       ? `${description.slice(0, maxLength)}...`
       : description;
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  // Added: Function to get initials from first and last name
+  const getInitials = () => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-10 transition-all duration-300 hover:shadow-2xl border border-gray-100">
       <div className="flex flex-col items-center gap-6">
+        {!imageError && avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={`${firstName} ${lastName}`}
+            className="w-20 h-20 rounded-full object-cover border-2 border-blue-500"
+            onError={handleImageError}
+          />
+        ) : (
+          // Updated: Display both first and last name initials
+          <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
+            {getInitials()}
+          </div>
+        )}
         <FaQuoteLeft className="text-4xl text-blue-500 mb-4" />
         <div className="flex-1 text-center">
           <p className="text-gray-700 text-lg leading-relaxed mb-6">
@@ -98,6 +139,7 @@ const TestimonialCard = ({ testimonial }) => {
 
 /**
  * Main carousel component for displaying testimonials
+ * @returns {JSX.Element} Testimonial carousel
  */
 const TestimonialCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -137,6 +179,7 @@ const TestimonialCarousel = () => {
 
   /**
    * Handles keyboard navigation for accessibility
+   * @param {KeyboardEvent} e - Keyboard event
    */
   const handleKeyDown = (e) => {
     if (e.key === "ArrowLeft") prevSlide();
